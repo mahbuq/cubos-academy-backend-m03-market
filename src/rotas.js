@@ -1,29 +1,22 @@
 const express = require("express");
+const usuarios = require("./controladores/usuarios/usuarios");
+const produtos = require("./controladores/produtos/produtos");
 const { autenticacaoUsuario } = require("./filtros/autenticacao");
-const { cadastrarUsuario } = require("./controladores/usuarios/cadastrarUsuario");
-const { loginUsuario } = require("./controladores/usuarios/loginUsuario");
-const { atualizarUsuario } = require("./controladores/usuarios/atualizarUsuarios");
-const { detalharUsuario } = require("./controladores/usuarios/detalharUsuario");
-const { listarProdutos } = require("./controladores/produtos/listarProdutos");
-const { detalharProduto } = require("./controladores/produtos/detalharProduto");
-const { cadastrarProduto } = require("./controladores/produtos/cadastrarProduto");
-const { atualizarProduto } = require("./controladores/produtos/atualizarProduto");
-const { deletarProduto } = require("./controladores/produtos/deletarProduto");
 
 const rotas = express();
 
-rotas.post("/usuario", cadastrarUsuario);
-rotas.post("/login", loginUsuario);
+rotas.post("/usuario", usuarios.cadastrarUsuario);
+rotas.post("/login", usuarios.loginUsuario);
 
 rotas.use(autenticacaoUsuario);
 
-rotas.get("/usuario", detalharUsuario);
-rotas.put("/usuario", atualizarUsuario);
+rotas.get("/usuario", usuarios.detalharUsuario);
+rotas.put("/usuario", usuarios.atualizarUsuario);
 
-rotas.get("/produtos", listarProdutos);
-rotas.get("/produtos/:id", detalharProduto);
-rotas.post("/produtos", cadastrarProduto);
-rotas.put("/produtos/:id", atualizarProduto);
-rotas.delete("/produtos/:id", deletarProduto);
+rotas.get("/produtos", produtos.listarProdutos);
+rotas.get("/produtos/:id", produtos.detalharProduto);
+rotas.post("/produtos", produtos.cadastrarProduto);
+rotas.put("/produtos/:id", produtos.atualizarProduto);
+rotas.delete("/produtos/:id", produtos.deletarProduto);
 
 module.exports = { rotas };

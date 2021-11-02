@@ -1,4 +1,4 @@
-const conexao = require("../../conexao");
+const knex = require("../../conexao");
 
 async function listarProdutos(req, res) {
    const { usuario } = req;
@@ -6,13 +6,13 @@ async function listarProdutos(req, res) {
 
    try {
       if (categoria) {
-         const query = `SELECT * FROM produtos WHERE usuario_id = $1 AND categoria ILIKE $2`;
-         const produtos = await conexao.query(query, [usuario.id, categoria]);
-         res.status(200).json(produtos.rows);
+         const produtos = await knex("produtos")
+            .where({ usuario_id: usuario.id })
+            .where("categoria", "ilike", `%${categoria}%`);
+         res.status(200).json(produtos);
       } else {
-         const query = "SELECT * FROM produtos WHERE usuario_id = $1";
-         const produtos = await conexao.query(query, [usuario.id]);
-         res.status(200).json(produtos.rows);
+         const produtos = await knex("produtos").where({ usuario_id: usuario.id });
+         res.status(200).json(produtos);
       }
    } catch (error) {
       return res.status(400).json({ mensagem: error.message });

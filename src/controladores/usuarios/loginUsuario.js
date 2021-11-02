@@ -1,7 +1,6 @@
-const conexao = require("../../conexao");
+const knex = require("../../conexao");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const jwtsecret = require("../../jwtsecret");
 
 async function loginUsuario(req, res) {
    const { email, senha } = req.body;
@@ -14,22 +13,20 @@ async function loginUsuario(req, res) {
    }
 
    try {
-      const queryVerificarEmail = "SELECT * FROM usuarios WHERE email = $1";
-      const usuarioEncontrado = await conexao.query(queryVerificarEmail, [email]);
-      if (usuarioEncontrado.rowCount === 0) {
+      const usuario = await knex("usuarios").where({ email }).first();
+
+      if (!usuario) {
          return res.status(400).json({
             mensagem: "Usuário e/ou senha inválido(s).",
          });
       }
-
-      const usuario = usuarioEncontrado.rows[0];
 
       const senhaVerificada = await bcrypt.compare(senha, usuario.senha);
       if (!senhaVerificada) {
          return res.status(400).json({ mensagem: "Usuário e/ou senha inválido(s)." });
       }
 
-      const token = jwt.sign({ id: usuario.id }, jwtsecret, {
+      const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, {
          expiresIn: "1d",
       });
 

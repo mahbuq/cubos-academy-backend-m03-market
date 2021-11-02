@@ -1,4 +1,4 @@
-const conexao = require("../../conexao");
+const knex = require("../../conexao");
 const bcrypt = require("bcrypt");
 
 async function cadastrarUsuario(req, res) {
@@ -18,9 +18,9 @@ async function cadastrarUsuario(req, res) {
    }
 
    try {
-      const queryVerificarEmail = "SELECT * FROM usuarios WHERE email = $1";
-      const usuarioEncontrado = await conexao.query(queryVerificarEmail, [email]);
-      if (usuarioEncontrado.rowCount !== 0) {
+      const procurarEmail = await knex("usuarios").where({ email }).first();
+
+      if (procurarEmail) {
          return res.status(400).json({
             mensagem: "Já existe um usuário cadastrado com o e-mail informado.",
          });
@@ -28,19 +28,17 @@ async function cadastrarUsuario(req, res) {
 
       const senhaCriptografada = await bcrypt.hash(senha, 10);
 
-      const queryCadastroUsuario =
-         "INSERT INTO usuarios (nome, email, senha, nome_loja) VALUES ($1, $2, $3, $4)";
-      const usuarioCadastrado = await conexao.query(queryCadastroUsuario, [
+      const usuarioCadastrado = await knex("usuarios").insert({
          nome,
          email,
-         senhaCriptografada,
+         senha: senhaCriptografada,
          nome_loja,
-      ]);
-      if (usuarioCadastrado.rowCount === 0) {
+      });
+
+      if (!usuarioCadastrado) {
          return res.status(400).json({ mensagem: "Não foi possível cadastrar o usuário." });
       }
-
-      res.status(204).json();
+      res.status(204).json(usuarioCadastrado);
    } catch (error) {
       return res.status(400).json({ mensagem: error.message });
    }

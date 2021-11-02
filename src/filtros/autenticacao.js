@@ -1,31 +1,27 @@
 const jwt = require("jsonwebtoken");
-const jwtsecret = require("../jwtsecret");
-const conexao = require("../conexao");
+const knex = require("../conexao");
 
 async function autenticacaoUsuario(req, res, next) {
    const { authorization } = req.headers;
 
    if (!authorization) {
-      return res
-         .status(401)
-         .json({
-            mensagem:
-               "Para acessar este recurso, o token de autenticação deve ser informado.",
-         });
+      return res.status(401).json({
+         mensagem: "Para acessar este recurso, o token de autenticação deve ser informado.",
+      });
    }
 
    try {
       const token = authorization.replace("Bearer", "").trim();
 
-      const { id } = jwt.verify(token, jwtsecret);
+      const { id } = jwt.verify(token, process.env.JWT_SECRET);
 
-      const queryBuscaId = "SELECT * FROM usuarios WHERE id = $1";
-      const usuarioEncontrado = await conexao.query(queryBuscaId, [id]);
-      if (usuarioEncontrado.rowCount === 0) {
+      const usuarioEncontrado = await knex("usuarios").where({ id }).first();
+
+      if (!usuarioEncontrado) {
          return res.status(404).json({ mensagem: "Usuário não encontrado." });
       }
 
-      const { senha, ...usuario } = usuarioEncontrado.rows[0];
+      const { senha, ...usuario } = usuarioEncontrado;
 
       req.usuario = usuario;
 

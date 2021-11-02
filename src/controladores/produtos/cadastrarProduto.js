@@ -1,4 +1,4 @@
-const conexao = require("../../conexao");
+const knex = require("../../conexao");
 
 async function cadastrarProduto(req, res) {
    const { usuario } = req;
@@ -21,21 +21,17 @@ async function cadastrarProduto(req, res) {
    }
 
    try {
-      const queryCadastro = `
-          INSERT INTO produtos 
-          (nome, usuario_id, quantidade, categoria, preco, descricao, imagem)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          `;
-      const produtoCadastrado = await conexao.query(queryCadastro, [
+      const produtoCadastrado = await knex("produtos").insert({
          nome,
-         usuario.id,
+         usuario_id: usuario.id,
          quantidade,
          categoria,
          preco,
          descricao,
          imagem,
-      ]);
-      if (produtoCadastrado.rowCount === 0) {
+      });
+
+      if (!produtoCadastrado) {
          return res.status(400).json({ mensagem: "Não foi possível cadastrar este produto." });
       }
 
