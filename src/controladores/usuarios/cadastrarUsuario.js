@@ -1,5 +1,6 @@
 const knex = require("../../conexao");
 const bcrypt = require("bcrypt");
+const nodemailer = require("../../nodemailer");
 
 async function cadastrarUsuario(req, res) {
    const { nome, email, senha, nome_loja } = req.body;
@@ -38,6 +39,20 @@ async function cadastrarUsuario(req, res) {
       if (!usuarioCadastrado) {
          return res.status(400).json({ mensagem: "Não foi possível cadastrar o usuário." });
       }
+
+      const dadosEnvio = {
+         from: "Market Cubos <nao-responder@marketcubos.com.br",
+         to: email,
+         subject: "Confirmação de cadastro",
+         template: "cadastro",
+         context: {
+            nome,
+            email,
+         },
+      };
+
+      nodemailer.sendMail(dadosEnvio);
+
       res.status(204).json(usuarioCadastrado);
    } catch (error) {
       return res.status(400).json({ mensagem: error.message });

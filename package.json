@@ -24,6 +24,8 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.12",
+    "nodemailer": "^6.7.0",
+    "nodemailer-express-handlebars": "^4.0.0",
     "nodemon": "^2.0.13",
     "pg": "^8.7.1"
   }
