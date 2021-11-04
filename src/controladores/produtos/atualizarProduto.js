@@ -2,7 +2,7 @@ const knex = require("../../conexao");
 
 async function atualizarProduto(req, res) {
    const { usuario } = req;
-   const { nome, quantidade, categoria, preco, descricao, imagem } = req.body;
+   const { nome, quantidade, categoria, preco, descricao } = req.body;
    const { id: idProduto } = req.params;
 
    if (!nome) {
@@ -37,7 +37,7 @@ async function atualizarProduto(req, res) {
       }
 
       const produtoAtualizado = await knex("produtos")
-         .update({ nome, quantidade, categoria, preco, descricao, imagem })
+         .update({ nome, quantidade, categoria, preco, descricao })
          .where({ id: idProduto });
 
       if (!produtoAtualizado) {

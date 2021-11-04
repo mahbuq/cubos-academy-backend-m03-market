@@ -1,9 +1,9 @@
 const knex = require("../../conexao");
 const supabase = require("../../servicos/supabase");
 
-async function deletarProduto(req, res) {
-   const { id: idProduto } = req.params;
+async function excluirImagemProduto(req, res) {
    const { usuario } = req;
+   const { id: idProduto } = req.params;
 
    try {
       const procurarProduto = await knex("produtos").where({ id: idProduto }).first();
@@ -16,21 +16,26 @@ async function deletarProduto(req, res) {
          .first();
       if (!produtoUsuario) {
          return res.status(403).json({
-            mensagem: "O usuário logado não tem permissão para deletar este produto.",
+            mensagem:
+               "O usuário logado não tem permissão para excluir a imagem deste produto.",
          });
       }
 
       await supabase.excluirImagem(produtoUsuario.imagem);
 
-      const produtoDeletado = await knex("produtos").where({ id: idProduto }).del();
-      if (!produtoDeletado) {
-         return res.status(400).json({ mensagem: "Não foi possível deletar este produto" });
+      const imagemExcluida = await knex("produtos")
+         .where({ id: idProduto })
+         .update({ imagem: null });
+      if (!imagemExcluida) {
+         return res
+            .status(400)
+            .json({ mensagem: "Não foi possível excluir a imagem do produto" });
       }
 
-      res.status(204).json();
+      res.json({ mensagem: "Imagem excluída com sucesso!" });
    } catch (error) {
       return res.status(400).json({ mensagem: error.message });
    }
 }
 
-module.exports = { deletarProduto };
+module.exports = { excluirImagemProduto };

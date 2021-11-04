@@ -1,8 +1,10 @@
 const knex = require("../../conexao");
+const supabase = require("../../servicos/supabase");
 
 async function cadastrarProduto(req, res) {
    const { usuario } = req;
-   const { nome, quantidade, categoria, preco, descricao, imagem } = req.body;
+   const { nome, quantidade, categoria, preco, descricao, nomeImagem } = req.body;
+   let { imagem } = req.body;
 
    if (!nome) {
       return res.status(400).json({ mensagem: "Campo 'nome' é obrigatório." });
@@ -21,6 +23,15 @@ async function cadastrarProduto(req, res) {
    }
 
    try {
+      if (imagem && nomeImagem) {
+         const { error } = await supabase.uploadImagem(nomeImagem, imagem);
+         if (error) {
+            return res.status(400).json({ mensagem: error });
+         }
+
+         imagem = nomeImagem;
+      }
+
       const produtoCadastrado = await knex("produtos").insert({
          nome,
          usuario_id: usuario.id,

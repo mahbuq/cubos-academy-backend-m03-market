@@ -9,6 +9,7 @@ async function listarProdutos(req, res) {
          const produtos = await knex("produtos")
             .where({ usuario_id: usuario.id })
             .where("categoria", "ilike", `%${categoria}%`);
+
          res.status(200).json(produtos);
       } else {
          const produtos = await knex("produtos").where({ usuario_id: usuario.id });
