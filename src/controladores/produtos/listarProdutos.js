@@ -1,20 +1,29 @@
 const knex = require("../../conexao");
+const supabase = require("../../servicos/supabase");
 
 async function listarProdutos(req, res) {
    const { usuario } = req;
    const { categoria } = req.query;
 
    try {
+      let produtos = [];
+
       if (categoria) {
-         const produtos = await knex("produtos")
+         produtos = await knex("produtos")
             .where({ usuario_id: usuario.id })
             .where("categoria", "ilike", `%${categoria}%`);
-
-         res.status(200).json(produtos);
       } else {
-         const produtos = await knex("produtos").where({ usuario_id: usuario.id });
-         res.status(200).json(produtos);
+         produtos = await knex("produtos").where({ usuario_id: usuario.id });
       }
+
+      for (const produto of produtos) {
+         if (produto.imagem) {
+            const { publicURL } = supabase.getUrlImagem(produto.imagem);
+            produto.urlImagem = publicURL;
+         }
+      }
+
+      res.status(200).json(produtos);
    } catch (error) {
       return res.status(400).json({ mensagem: error.message });
    }

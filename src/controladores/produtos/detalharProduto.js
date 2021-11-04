@@ -1,4 +1,5 @@
 const knex = require("../../conexao");
+const supabase = require("../../servicos/supabase");
 
 async function detalharProduto(req, res) {
    const { usuario } = req;
@@ -16,6 +17,10 @@ async function detalharProduto(req, res) {
          return res.status(403).json({
             mensagem: "O usuário logado não tem permissão para acessar este produto.",
          });
+      }
+      if (produtoUsuario.imagem) {
+         const { publicURL } = supabase.getUrlImagem(produtoUsuario.imagem);
+         produtoUsuario.urlImagem = publicURL;
       }
 
       res.status(200).json(produtoUsuario);
