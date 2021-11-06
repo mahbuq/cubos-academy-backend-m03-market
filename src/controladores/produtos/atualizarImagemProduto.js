@@ -1,5 +1,6 @@
 const knex = require("../../conexao");
 const supabase = require("../../servicos/supabase");
+const { schemaAtualizarImagemProduto } = require("../../validacoes/schemasProdutos");
 
 async function atualizarImagemProduto(req, res) {
    const { usuario } = req;
@@ -7,13 +8,9 @@ async function atualizarImagemProduto(req, res) {
    const { nomeImagem } = req.body;
    let { imagem } = req.body;
 
-   if (!imagem || !nomeImagem) {
-      return res
-         .status(400)
-         .json({ mensagem: "Os campos 'imagem' e 'nomeImagem' são obrigatórios." });
-   }
-
    try {
+      await schemaAtualizarImagemProduto.validate(req.body);
+
       const procurarProduto = await knex("produtos").where({ id: idProduto }).first();
       if (!procurarProduto) {
          return res.status(404).json({ mensagem: "Produto não encontrado." });

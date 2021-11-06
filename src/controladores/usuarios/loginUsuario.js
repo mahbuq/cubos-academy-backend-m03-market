@@ -1,18 +1,14 @@
 const knex = require("../../conexao");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { schemaLoginUsuario } = require("../../validacoes/schemasUsuarios");
 
 async function loginUsuario(req, res) {
    const { email, senha } = req.body;
 
-   if (!email) {
-      return res.status(400).json({ mensagem: "Campo 'email' é obrigatório." });
-   }
-   if (!senha) {
-      return res.status(400).json({ mensagem: "Campo 'senha' é obrigatório." });
-   }
-
    try {
+      await schemaLoginUsuario.validate(req.body);
+
       const usuario = await knex("usuarios").where({ email }).first();
 
       if (!usuario) {

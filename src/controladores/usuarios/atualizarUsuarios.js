@@ -1,5 +1,6 @@
 const knex = require("../../conexao");
 const bcrypt = require("bcrypt");
+const { schemaAtualizarUsuario } = require("../../validacoes/schemasUsuarios");
 
 async function atualizarUsuario(req, res) {
    const { usuario } = req;
@@ -11,6 +12,8 @@ async function atualizarUsuario(req, res) {
    }
 
    try {
+      await schemaAtualizarUsuario.validate(req.body);
+
       if (email && email !== usuario.email) {
          const buscaEmail = await knex("usuarios").where({ email }).first();
 
